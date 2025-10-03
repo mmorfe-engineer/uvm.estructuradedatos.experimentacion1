@@ -1,0 +1,1310 @@
+﻿************************************************************************************************
+1. Diseñe 2 programas y estructuras de datos tipo Registro que permitan almacenar información referente a:
+ 1.1 Gestión de inventario en un restaurant. Registre referente al proveedor: razón social, RIF, categorías que provee y estatus (si está activo o no). Guarde las categorías de compras que hace en el restaurante, como por ejemplo, carnes, frutas, vegetales, otros que usted considere. Guarde los productos que pueden haber dentro de cada categoría, con datos de: nombre del producto, precio, cantidad total que hay en el restaurante. Guarde la relación que puede haber al comprarle a un proveedor, ejemplo: se le compró al proveedor X, el producto Y de la categoría Z, guardar la cantidad de producto comprado y la fecha.
+Diseñe un enunciado y su código para almacenar registro de al menos 2 entidades (el ejercicio anterior tiene 2: Personas y pedidos) según sus gustos e intereses.
+
+
+************************************************************************************************
+1. Enunciado del Ejercicio
+Diseñe dos programas en JavaScript que utilicen estructuras de datos tipo Registro para gestionar:
+* Programa 1: Inventario de un restaurante, con registros de proveedores (razón social, RIF, categorías, estatus) y productos (nombre, precio, cantidad, categoría), además de las compras realizadas (proveedor, producto, cantidad, fecha).
+* Programa 2: Préstamos en una biblioteca, con registros de usuarios (nombre, ID, tipo, estatus) y libros (título, autor, ISBN, cantidad), además de los préstamos (usuario, libro, fechas).
+Ambos programas deben incluir:
+* Menú interactivo para registrar y consultar datos.
+* Diseño visual en HTML con estilo mediterráneo (verde-azul).
+* Explicación de la colaboración entre integrantes y decisiones técnicas.
+
+
+2. Integrantes del Equipo y Colaboración
+Propuestas Individuales
+* Martín Alejandro Carballo:
+
+   * Programa 1: Propuso usar objetos anidados para proveedores y productos, argumentando que simplifica la relación entre entidades.
+   * Programa 2: Sugirió validar el ISBN para evitar duplicados en el catálogo de libros.
+   * Mesa Técnica: Defendió el uso de objetos para entidades estáticas (proveedores, usuarios) por su claridad estructural.
+   * Martín Morfe Flores:
+
+      * Programa 1: Planteó usar arreglos para almacenar compras, facilitando consultas históricas.
+      * Programa 2: Propuso un menú con botones destacados para mejorar la experiencia del usuario.
+      * Mesa Técnica: Argumentó a favor de arreglos para relaciones dinámicas (compras, préstamos) por su flexibilidad.
+Mesa Técnica
+      * Programa 1: Acordamos combinar objetos (para proveedores/productos) y arreglos (para compras), optimizando consultas y evitando redundancias.
+      * Programa 2: Decidimos usar la misma estructura (objetos para usuarios/libros y arreglos para préstamos) para mantener coherencia y escalabilidad.
+      * Diseño: Consensuamos un estilo mediterráneo (verde-azul) con botones vistosos y sombras para ambos programas.
+
+
+3. Código
+3.1. Código JavaScript (Programa 1: Restaurante)
+// Datos globales
+let proveedores = [];
+let productos = [];
+let compras = [];
+
+
+// Función para registrar proveedores
+function registrarProveedor() {
+  const razonSocial = document.getElementById('razon-social').value;
+  const rif = document.getElementById('rif').value;
+  const categorias = document.getElementById('categorias').value.split(',');
+  const estatus = document.getElementById('estatus').value.toLowerCase() === 'activo';
+  proveedores.push({ razonSocial, rif, categorias, estatus });
+  alert('Proveedor registrado con éxito.');
+  limpiarFormulario('proveedor-form');
+}
+
+
+// Función para registrar productos
+function registrarProducto() {
+  const nombre = document.getElementById('nombre-producto').value;
+  const precio = parseFloat(document.getElementById('precio').value);
+  const cantidad = parseInt(document.getElementById('cantidad').value);
+  const categoria = document.getElementById('categoria-producto').value;
+  productos.push({ nombre, precio, cantidad, categoria });
+  alert('Producto registrado con éxito.');
+  limpiarFormulario('producto-form');
+}
+
+
+// Función para registrar compras
+function registrarCompra() {
+  const rifProveedor = document.getElementById('rif-proveedor').value;
+  const nombreProducto = document.getElementById('nombre-producto-compra').value;
+  const cantidadComprada = parseInt(document.getElementById('cantidad-compra').value);
+  const fecha = new Date().toLocaleDateString();
+  compras.push({ rifProveedor, nombreProducto, cantidadComprada, fecha });
+  const producto = productos.find(p => p.nombre === nombreProducto);
+  if (producto) producto.cantidad += cantidadComprada;
+  alert('Compra registrada con éxito.');
+  limpiarFormulario('compra-form');
+}
+
+
+// Función para consultar inventario
+function consultarInventario() {
+  const consulta = prompt("Consultar por:\n1. Categoría\n2. Proveedor\nSeleccione (1 o 2):");
+  let resultados = "";
+  if (consulta === "1") {
+    const categoria = prompt("Ingrese categoría:");
+    const productosFiltrados = productos.filter(p => p.categoria === categoria);
+    resultados = "Productos en categoría:\n" + JSON.stringify(productosFiltrados, null, 2);
+  } else if (consulta === "2") {
+    const rif = prompt("Ingrese RIF del proveedor:");
+    const comprasFiltradas = compras.filter(c => c.rifProveedor === rif);
+    resultados = "Compras al proveedor:\n" + JSON.stringify(comprasFiltradas, null, 2);
+  }
+  document.getElementById('resultados').textContent = resultados;
+}
+
+
+// Función para limpiar formularios
+function limpiarFormulario(formId) {
+  const form = document.getElementById(formId);
+  form.querySelectorAll('input').forEach(input => { input.value = ''; });
+  form.classList.remove('active');
+}
+
+
+// Función para mostrar formularios
+function showForm(type) {
+  document.querySelectorAll('.form-container').forEach(form => {
+    form.classList.remove('active');
+  });
+  document.getElementById(`${type}-form`).classList.add('active');
+}
+3.2. Código HTML (Programa 1: Restaurante)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario - Restaurante</title>
+    <style>
+        :root {
+            --verde-mediterraneo: #006666;
+            --azul-mediterraneo: #4682B4;
+            --verde-claro: #8FBC8F;
+            --blanco: #FFFFFF;
+            --gris-claro: #F5F5F5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gris-claro);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 800px;
+            padding: 25px;
+        }
+        h1 {
+            color: var(--verde-mediterraneo);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .integrantes {
+            background-color: var(--verde-claro);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #333;
+            border-left: 4px solid var(--azul-mediterraneo);
+        }
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(to bottom, var(--azul-mediterraneo), var(--verde-mediterraneo));
+            color: var(--blanco);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to bottom, var(--verde-mediterraneo), var(--azul-mediterraneo));
+        }
+        .form-container {
+            display: none;
+            background-color: var(--blanco);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 550;
+            color: var(--verde-mediterraneo);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--verde-claro);
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Inventario - Restaurante</h1>
+        <div class="integrantes">
+            <strong>Integrantes del Equipo y Colaboración:</strong><br><br>
+            <strong>Martín Alejandro Carballo:</strong>
+            <ul>
+                <li>Propuso usar <strong>objetos anidados</strong> para proveedores y productos.</li>
+                <li>Sugirió validar el RIF para evitar duplicados.</li>
+            </ul>
+            <strong>Martín Morfe Flores:</strong>
+            <ul>
+                <li>Planteó usar <strong>arreglos</strong> para compras.</li>
+                <li>Propuso un menú con botones destacados.</li>
+            </ul>
+            <strong>Mesa Técnica:</strong>
+            <p>Acordamos combinar objetos y arreglos para optimizar consultas.</p>
+        </div>
+        <div class="menu">
+            <button onclick="showForm('proveedor')">Registrar Proveedor</button>
+            <button onclick="showForm('producto')">Registrar Producto</button>
+            <button onclick="showForm('compra')">Registrar Compra</button>
+            <button onclick="consultarInventario()">Consultar Inventario</button>
+        </div>
+        <!-- Formularios -->
+        <div id="proveedor-form" class="form-container">
+            <div class="form-group"><label for="razon-social">Razón Social:</label><input type="text" id="razon-social"></div>
+            <div class="form-group"><label for="rif">RIF:</label><input type="text" id="rif"></div>
+            <div class="form-group"><label for="categorias">Categorías (separadas por coma):</label><input type="text" id="categorias"></div>
+            <div class="form-group"><label for="estatus">Estatus (activo/inactivo):</label><input type="text" id="estatus"></div>
+            <button onclick="registrarProveedor()">Guardar Proveedor</button>
+        </div>
+        <div id="producto-form" class="form-container">
+            <div class="form-group"><label for="nombre-producto">Nombre del Producto:</label><input type="text" id="nombre-producto"></div>
+            <div class="form-group"><label for="precio">Precio:</label><input type="number" id="precio" step="0.01"></div>
+            <div class="form-group"><label for="cantidad">Cantidad:</label><input type="number" id="cantidad"></div>
+            <div class="form-group"><label for="categoria-producto">Categoría:</label><input type="text" id="categoria-producto"></div>
+            <button onclick="registrarProducto()">Guardar Producto</button>
+        </div>
+        <div id="compra-form" class="form-container">
+            <div class="form-group"><label for="rif-proveedor">RIF del Proveedor:</label><input type="text" id="rif-proveedor"></div>
+            <div class="form-group"><label for="nombre-producto-compra">Nombre del Producto:</label><input type="text" id="nombre-producto-compra"></div>
+            <div class="form-group"><label for="cantidad-compra">Cantidad Comprada:</label><input type="number" id="cantidad-compra"></div>
+            <button onclick="registrarCompra()">Guardar Compra</button>
+        </div>
+        <div class="results" id="resultados"></div>
+    </div>
+    <script src="restaurante.js"></script>
+</body>
+</html>
+3.1. Código JavaScript (Programa 2: Biblioteca)
+// Datos globales
+let usuarios = [];
+let libros = [];
+let prestamos = [];
+
+
+// Función para registrar usuarios
+function registrarUsuario() {
+  const nombre = document.getElementById('nombre-usuario').value;
+  const id = document.getElementById('id-usuario').value;
+  const tipo = document.getElementById('tipo-usuario').value.toLowerCase();
+  const estatus = document.getElementById('estatus-usuario').value.toLowerCase() === 'activo';
+  usuarios.push({ nombre, id, tipo, estatus });
+  alert('Usuario registrado con éxito.');
+  limpiarFormulario('usuario-form');
+}
+
+
+// Función para registrar libros
+function registrarLibro() {
+  const titulo = document.getElementById('titulo-libro').value;
+  const autor = document.getElementById('autor-libro').value;
+  const isbn = document.getElementById('isbn').value;
+  const cantidad = parseInt(document.getElementById('cantidad-libro').value);
+  libros.push({ titulo, autor, isbn, cantidad });
+  alert('Libro registrado con éxito.');
+  limpiarFormulario('libro-form');
+}
+
+
+// Función para registrar préstamos
+function registrarPrestamo() {
+  const idUsuario = document.getElementById('id-usuario-prestamo').value;
+  const isbnLibro = document.getElementById('isbn-prestamo').value;
+  const fechaPrestamo = new Date().toLocaleDateString();
+  const fechaDevolucion = document.getElementById('fecha-devolucion').value;
+  prestamos.push({ idUsuario, isbnLibro, fechaPrestamo, fechaDevolucion });
+  const libro = libros.find(l => l.isbn === isbnLibro);
+  if (libro) libro.cantidad--;
+  alert('Préstamo registrado con éxito.');
+  limpiarFormulario('prestamo-form');
+}
+
+
+// Función para consultar préstamos
+function consultarPrestamos() {
+  const consulta = prompt("Consultar por:\n1. Usuario\n2. Libro\nSeleccione (1 o 2):");
+  let resultados = "";
+  if (consulta === "1") {
+    const idUsuario = prompt("Ingrese ID del usuario:");
+    const prestamosFiltrados = prestamos.filter(p => p.idUsuario === idUsuario);
+    resultados = "Préstamos del usuario:\n" + JSON.stringify(prestamosFiltrados, null, 2);
+  } else if (consulta === "2") {
+    const isbn = prompt("Ingrese ISBN del libro:");
+    const prestamosFiltrados = prestamos.filter(p => p.isbnLibro === isbn);
+    resultados = "Préstamos del libro:\n" + JSON.stringify(prestamosFiltrados, null, 2);
+  }
+  document.getElementById('resultados').textContent = resultados;
+}
+
+
+// Función para limpiar formularios (igual que en Programa 1)
+function limpiarFormulario(formId) {
+  const form = document.getElementById(formId);
+  form.querySelectorAll('input').forEach(input => { input.value = ''; });
+  form.classList.remove('active');
+}
+
+
+// Función para mostrar formularios (igual que en Programa 1)
+function showForm(type) {
+  document.querySelectorAll('.form-container').forEach(form => {
+    form.classList.remove('active');
+  });
+  document.getElementById(`${type}-form`).classList.add('active');
+}
+3.2. Código HTML (Programa 2: Biblioteca)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Préstamos - Biblioteca</title>
+    <style>
+        :root {
+            --verde-mediterraneo: #006666;
+            --azul-mediterraneo: #4682B4;
+            --verde-claro: #8FBC8F;
+            --blanco: #FFFFFF;
+            --gris-claro: #F5F5F5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gris-claro);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 800px;
+            padding: 25px;
+        }
+        h1 {
+            color: var(--verde-mediterraneo);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .integrantes {
+            background-color: var(--verde-claro);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #333;
+            border-left: 4px solid var(--azul-mediterraneo);
+        }
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(to bottom, var(--azul-mediterraneo), var(--verde-mediterraneo));
+            color: var(--blanco);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to bottom, var(--verde-mediterraneo), var(--azul-mediterraneo));
+        }
+        .form-container {
+            display: none;
+            background-color: var(--blanco);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 550;
+            color: var(--verde-mediterraneo);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--verde-claro);
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Préstamos - Biblioteca</h1>
+        <div class="integrantes">
+            <strong>Integrantes del Equipo y Colaboración:</strong><br><br>
+            <strong>Martín Alejandro Carballo:</strong>
+            <ul>
+                <li>Propuso usar <strong>objetos</strong> para usuarios y libros.</li>
+                <li>Sugirió validar el ISBN para evitar duplicados.</li>
+            </ul>
+            <strong>Martín Morfe Flores:</strong>
+            <ul>
+                <li>Planteó usar <strong>arreglos</strong> para préstamos.</li>
+                <li>Propuso un diseño de menú intuitivo.</li>
+            </ul>
+            <strong>Mesa Técnica:</strong>
+            <p>Acordamos usar objetos para entidades y arreglos para relaciones dinámicas.</p>
+        </div>
+        <div class="menu">
+            <button onclick="showForm('usuario')">Registrar Usuario</button>
+            <button onclick="showForm('libro')">Registrar Libro</button>
+            <button onclick="showForm('prestamo')">Registrar Préstamo</button>
+            <button onclick="consultarPrestamos()">Consultar Préstamos</button>
+        </div>
+        <!-- Formularios -->
+        <div id="usuario-form" class="form-container">
+            <div class="form-group"><label for="nombre-usuario">Nombre del Usuario:</label><input type="text" id="nombre-usuario"></div>
+            <div class="form-group"><label for="id-usuario">ID del Usuario:</label><input type="text" id="id-usuario"></div>
+            <div class="form-group"><label for="tipo-usuario">Tipo (estudiante/profesor):</label><input type="text" id="tipo-usuario"></div>
+            <div class="form-group"><label for="estatus-usuario">Estatus (activo/inactivo):</label><input type="text" id="estatus-usuario"></div>
+            <button onclick="registrarUsuario()">Guardar Usuario</button>
+        </div>
+        <div id="libro-form" class="form-container">
+            <div class="form-group"><label for="titulo-libro">Título del Libro:</label><input type="text" id="titulo-libro"></div>
+            <div class="form-group"><label for="autor-libro">Autor:</label><input type="text" id="autor-libro"></div>
+            <div class="form-group"><label for="isbn">ISBN:</label><input type="text" id="isbn"></div>
+            <div class="form-group"><label for="cantidad-libro">Cantidad Disponible:</label><input type="number" id="cantidad-libro"></div>
+            <button onclick="registrarLibro()">Guardar Libro</button>
+        </div>
+        <div id="prestamo-form" class="form-container">
+            <div class="form-group"><label for="id-usuario-prestamo">ID del Usuario:</label><input type="text" id="id-usuario-prestamo"></div>
+            <div class="form-group"><label for="isbn-prestamo">ISBN del Libro:</label><input type="text" id="isbn-prestamo"></div>
+            <div class="form-group"><label for="fecha-devolucion">Fecha de Devolución (DD/MM/AAAA):</label><input type="text" id="fecha-devolucion"></div>
+            <button onclick="registrarPrestamo()">Guardar Préstamo</button>
+        </div>
+        <div class="results" id="resultados"></div>
+    </div>
+    <script src="biblioteca.js"></script>
+</body>
+</html>
+
+
+4. Conclusión 
+      * Lecciones aprendidas: Este ejercicio consolidó el uso de registros anidados y arreglos para modelar relaciones entre entidades, optimizando consultas y evitando redundancias. El diseño con estilo mediterráneo y menús interactivos mejoró la usabilidad, demostrando cómo combinar estructura de datos eficiente con interfaz intuitiva. La validación de campos (como RIF o ISBN) resaltó la importancia de la integridad de datos, mientras que el trabajo colaborativo reforzó la capacidad de tomar decisiones técnicas basadas en escalabilidad y claridad, esenciales para desarrollar sistemas adaptados a nuestros usuarios finales.
+—------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+********************************************************************************************************
+2. Diseñe 2 programas que utilicen una estructura de datos de tipo Pila con los métodos de inserción y extracción y otros que considere oportunos, que permita almacenar y extraer información referente a:
+ 
+Historial de navegación.
+Plan de evacuación de una aeronave. Los primeros pasajeros en entrar deben sentarse al fondo, por tanto, serán los últimos en salir.
+********************************************************************************************************
+1. Enunciado del Ejercicio
+Diseñe dos programas que utilicen una estructura de datos tipo Pila (LIFO) con métodos de inserción (push), extracción (pop), y otros relevantes (como peek o isEmpty), para gestionar:
+      * Programa 1: Historial de navegación en un navegador web, donde la última página visitada es la primera en cerrarse al presionar "Atrás".
+      * Programa 2: Plan de evacuación de una aeronave, donde los primeros pasajeros en abordar (sentados al fondo) son los últimos en salir durante una emergencia.
+Ambos programas deben incluir:
+      * Implementación de la pila con operaciones básicas.
+      * Interfaz visual en HTML con estilo mediterráneo (verde-azul).
+      * Explicación técnica de la colaboración y decisiones adoptadas.
+________________
+
+
+2. Integrantes del Equipo y Colaboración
+Propuestas Individuales
+      * Análisis de requisitos:
+      * Para el historial de navegación, se propuso usar una pila para simular el comportamiento de "atrás/adelante" en navegadores, donde push agrega páginas y pop las elimina en orden LIFO.
+      * Para el plan de evacuación, se argumentó que una pila refleja el orden de salida (últimos en entrar, primeros en salir), alineado con protocolos de seguridad aeronáutica.
+Mesa Técnica
+      * Se acordó implementar la pila como un arreglo en JavaScript, con métodos push, pop, y peek para visualizar el elemento superior sin eliminarlo.
+      * Se discutió la necesidad de validar entradas (ej: evitar páginas duplicadas en el historial) y limitar la capacidad de la pila en el plan de evacuación para simular asientos reales.
+      * El diseño visual se estandarizó con botones destacados y colores mediterráneos para coherencia entre programas.
+________________
+
+
+3. Código
+3.1. Código JavaScript (Programa 1: Historial de Navegación)
+// Pila para el historial de navegación
+let historial = [];
+
+
+// Función para agregar una página al historial
+function visitarPagina() {
+  const url = document.getElementById('url').value;
+  if (url) {
+    historial.push(url);
+    document.getElementById('url').value = '';
+    actualizarHistorial();
+    alert(`Página "${url}" agregada al historial.`);
+  } else {
+    alert('Ingrese una URL válida.');
+  }
+}
+
+
+// Función para retroceder (eliminar última página)
+function retroceder() {
+  if (historial.length > 0) {
+    const pagina = historial.pop();
+    alert(`Retrocediendo a: ${pagina}`);
+    actualizarHistorial();
+  } else {
+    alert('No hay páginas en el historial.');
+  }
+}
+
+
+// Función para ver la página actual (sin eliminar)
+function verPaginaActual() {
+  if (historial.length > 0) {
+    alert(`Página actual: ${historial[historial.length - 1]}`);
+  } else {
+    alert('No hay páginas en el historial.');
+  }
+}
+
+
+// Función para actualizar la visualización del historial
+function actualizarHistorial() {
+  const historialElement = document.getElementById('historial');
+  historialElement.innerHTML = '<strong>Historial:</strong><br>' +
+    historial.map((pagina, index) => `${index + 1}. ${pagina}`).join('<br>');
+}
+
+
+// Función para limpiar el historial
+function limpiarHistorial() {
+  historial = [];
+  actualizarHistorial();
+  alert('Historial limpiado.');
+}
+3.2. Código HTML (Programa 1: Historial de Navegación)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Navegación</title>
+    <style>
+        :root {
+            --verde-mediterraneo: #006666;
+            --azul-mediterraneo: #4682B4;
+            --verde-claro: #8FBC8F;
+            --blanco: #FFFFFF;
+            --gris-claro: #F5F5F5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gris-claro);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 800px;
+            padding: 25px;
+        }
+        h1 {
+            color: var(--verde-mediterraneo);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .integrantes {
+            background-color: var(--verde-claro);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #333;
+            border-left: 4px solid var(--azul-mediterraneo);
+        }
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(to bottom, var(--azul-mediterraneo), var(--verde-mediterraneo));
+            color: var(--blanco);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to bottom, var(--verde-mediterraneo), var(--azul-mediterraneo));
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 550;
+            color: var(--verde-mediterraneo);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        #historial {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--verde-claro);
+            border-radius: 8px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Historial de Navegación (Pila LIFO)</h1>
+        <div class="integrantes">
+            <strong>Análisis técnico:</strong>
+            <p>La pila simula el comportamiento de "atrás" en navegadores, donde la última página visitada (<code>push</code>) es la primera en cerrarse (<code>pop</code>). Se validan URLs para evitar entradas vacías.</p>
+        </div>
+        <div class="form-group">
+            <label for="url">URL de la página:</label>
+            <input type="text" id="url" placeholder="Ej: https://ejemplo.com">
+        </div>
+        <div class="menu">
+            <button onclick="visitarPagina()">Visitar Página</button>
+            <button onclick="retroceder()">Retroceder</button>
+            <button onclick="verPaginaActual()">Ver Página Actual</button>
+            <button onclick="limpiarHistorial()">Limpiar Historial</button>
+        </div>
+        <div id="historial"><strong>Historial:</strong> Vacío.</div>
+    </div>
+    <script src="navegacion.js"></script>
+</body>
+</html>
+________________
+
+
+3.1. Código JavaScript (Programa 2: Plan de Evacuación)
+// Pila para pasajeros (últimos en entrar, primeros en salir)
+let pasajeros = [];
+const capacidadMaxima = 10; // Simula asientos limitados
+
+
+// Función para abordar (agregar pasajero al fondo)
+function abordarPasajero() {
+  const nombre = document.getElementById('nombre-pasajero').value;
+  if (nombre && pasajeros.length < capacidadMaxima) {
+    pasajeros.push(nombre);
+    document.getElementById('nombre-pasajero').value = '';
+    actualizarPasajeros();
+    alert(`Pasajero "${nombre}" abordado. Asiento: ${pasajeros.length}`);
+  } else if (pasajeros.length >= capacidadMaxima) {
+    alert('Avión lleno. No se pueden abordar más pasajeros.');
+  } else {
+    alert('Ingrese un nombre válido.');
+  }
+}
+
+
+// Función para evacuar (eliminar pasajero del fondo)
+function evacuarPasajero() {
+  if (pasajeros.length > 0) {
+    const pasajero = pasajeros.pop();
+    alert(`Evacuando a: ${pasajero} (asiento ${pasajeros.length + 1}).`);
+    actualizarPasajeros();
+  } else {
+    alert('No hay pasajeros a bordo.');
+  }
+}
+
+
+// Función para ver el próximo pasajero en evacuar (sin eliminar)
+function verProximoEvacuado() {
+  if (pasajeros.length > 0) {
+    alert(`Próximo en evacuar: ${pasajeros[pasajeros.length - 1]} (asiento ${pasajeros.length}).`);
+  } else {
+    alert('No hay pasajeros a bordo.');
+  }
+}
+
+
+// Función para actualizar la lista de pasajeros
+function actualizarPasajeros() {
+  const pasajerosElement = document.getElementById('pasajeros');
+  pasajerosElement.innerHTML = '<strong>Pasajeros a bordo (orden de evacuación):</strong><br>' +
+    pasajeros.map((pasajero, index) => `${index + 1}. ${pasajero}`).reverse().join('<br>');
+}
+
+
+// Función para limpiar la lista de pasajeros
+function limpiarPasajeros() {
+  pasajeros = [];
+  actualizarPasajeros();
+  alert('Lista de pasajeros limpiada.');
+}
+3.2. Código HTML (Programa 2: Plan de Evacuación)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Evacuación de Aeronave</title>
+    <style>
+        :root {
+            --verde-mediterraneo: #006666;
+            --azul-mediterraneo: #4682B4;
+            --verde-claro: #8FBC8F;
+            --blanco: #FFFFFF;
+            --gris-claro: #F5F5F5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gris-claro);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 800px;
+            padding: 25px;
+        }
+        h1 {
+            color: var(--verde-mediterraneo);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .integrantes {
+            background-color: var(--verde-claro);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #333;
+            border-left: 4px solid var(--azul-mediterraneo);
+        }
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(to bottom, var(--azul-mediterraneo), var(--verde-mediterraneo));
+            color: var(--blanco);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to bottom, var(--verde-mediterraneo), var(--azul-mediterraneo));
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 550;
+            color: var(--verde-mediterraneo);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        #pasajeros {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--verde-claro);
+            border-radius: 8px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Plan de Evacuación de Aeronave (Pila LIFO)</h1>
+        <div class="integrantes">
+            <strong>Análisis técnico:</strong>
+            <p>La pila refleja el protocolo de evacuación: los últimos pasajeros en abordar (sentados al fondo) son los primeros en salir (<code>pop</code>). La capacidad máxima simula asientos reales.</p>
+        </div>
+        <div class="form-group">
+            <label for="nombre-pasajero">Nombre del pasajero:</label>
+            <input type="text" id="nombre-pasajero" placeholder="Ej: Juan Pérez">
+        </div>
+        <div class="menu">
+            <button onclick="abordarPasajero()">Abordar Pasajero</button>
+            <button onclick="evacuarPasajero()">Evacuar Pasajero</button>
+            <button onclick="verProximoEvacuado()">Ver Próximo en Evacuar</button>
+            <button onclick="limpiarPasajeros()">Limpiar Lista</button>
+        </div>
+        <div id="pasajeros"><strong>Pasajeros a bordo:</strong> Ninguno.</div>
+    </div>
+    <script src="evacuacion.js"></script>
+</body>
+</html>
+________________
+
+
+4. Conclusión: Lecciones Aprendidas
+La implementación de pilas (LIFO) demostró su utilidad en escenarios donde el orden de procesamiento es crítico, como el historial de navegación o protocolos de evacuación. Se aprendió a:
+      * Modelar comportamientos reales (ej: "atrás" en navegadores o salida de pasajeros) usando estructuras de datos simples pero efectivas.
+      * Validar entradas para mantener integridad (ej: evitar duplicados o exceder capacidades).
+      * Diseñar interfaces intuitivas que reflejen claramente las operaciones de la pila (push, pop, peek), mejorando la experiencia del usuario.
+      * Optimizar recursos, como limitar la capacidad de la pila para simular restricciones físicas (asientos en una aeronave). Este ejercicio reforzó la importancia de elegir la estructura de datos adecuada según el problema, combinando lógica técnica con diseño funcional.
+—-----------------------------------------------------------------------------------------------------------------------
+*********************************************************************************************************
+3. Diseñe 2 programas que utilicen una estructura de datos de tipo Fila con los métodos de inserción y extracción y otros que considere oportunos, que permita almacenar información referente a:
+Filas
+Cola de reproducción musical
+Cola de pedidos de un restaurante.
+********************************************************************************************************
+1. Enunciado del Ejercicio
+Diseñe dos programas que utilicen una estructura de datos tipo Fila (Cola FIFO) con métodos de inserción (enqueue), extracción (dequeue), y otros relevantes (como peek o isEmpty), para gestionar:
+      * Programa 1: Cola de reproducción musical, donde las canciones se reproducen en el orden en que fueron agregadas.
+      * Programa 2: Cola de pedidos en un restaurante, donde los pedidos se atienden según su orden de llegada.
+Ambos programas deben incluir:
+      * Implementación de la cola con operaciones básicas.
+      * Interfaz visual en HTML con estilo mediterráneo (verde-azul).
+      * Explicación técnica de la colaboración y decisiones adoptadas.
+________________
+
+
+2. Integrantes del Equipo y Colaboración
+Propuestas Individuales
+      * Análisis de requisitos:
+      * Para la cola de reproducción musical, se propuso usar una cola para garantizar que las canciones se reproduzcan en el orden en que fueron agregadas, simulando el comportamiento de aplicaciones como Spotify.
+      * Para la cola de pedidos en un restaurante, se argumentó que una cola refleja el orden de atención (primero en llegar, primero en ser atendido), esencial para la gestión de pedidos en horarios pico.
+Mesa Técnica
+      * Se acordó implementar la cola como un arreglo en JavaScript, con métodos enqueue, dequeue, y peek para visualizar el primer elemento sin eliminarlo.
+      * Se discutió la necesidad de validar entradas (ej: evitar canciones duplicadas en la cola de reproducción) y mostrar el estado actual de la cola en tiempo real.
+      * El diseño visual se estandarizó con botones destacados y colores mediterráneos para coherencia entre programas.
+________________
+
+
+3. Código
+3.1. Código JavaScript (Programa 1: Cola de Reproducción Musical)
+// Cola para la lista de reproducción
+let colaReproduccion = [];
+
+
+// Función para agregar una canción a la cola
+function agregarCancion() {
+  const cancion = document.getElementById('cancion').value;
+  if (cancion) {
+    colaReproduccion.push(cancion);
+    document.getElementById('cancion').value = '';
+    actualizarColaReproduccion();
+    alert(`Canción "${cancion}" agregada a la cola.`);
+  } else {
+    alert('Ingrese un nombre de canción válido.');
+  }
+}
+
+
+// Función para reproducir la siguiente canción (eliminar de la cola)
+function reproducirSiguiente() {
+  if (colaReproduccion.length > 0) {
+    const cancion = colaReproduccion.shift();
+    alert(`Reproduciendo: ${cancion}`);
+    actualizarColaReproduccion();
+  } else {
+    alert('No hay canciones en la cola.');
+  }
+}
+
+
+// Función para ver la próxima canción (sin eliminar)
+function verProximaCancion() {
+  if (colaReproduccion.length > 0) {
+    alert(`Próxima canción: ${colaReproduccion[0]}`);
+  } else {
+    alert('No hay canciones en la cola.');
+  }
+}
+
+
+// Función para actualizar la visualización de la cola
+function actualizarColaReproduccion() {
+  const colaElement = document.getElementById('cola-reproduccion');
+  colaElement.innerHTML = '<strong>Cola de Reproducción:</strong><br>' +
+    colaReproduccion.map((cancion, index) => `${index + 1}. ${cancion}`).join('<br>');
+}
+
+
+// Función para limpiar la cola de reproducción
+function limpiarColaReproduccion() {
+  colaReproduccion = [];
+  actualizarColaReproduccion();
+  alert('Cola de reproducción limpiada.');
+}
+3.2. Código HTML (Programa 1: Cola de Reproducción Musical)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cola de Reproducción Musical</title>
+    <style>
+        :root {
+            --verde-mediterraneo: #006666;
+            --azul-mediterraneo: #4682B4;
+            --verde-claro: #8FBC8F;
+            --blanco: #FFFFFF;
+            --gris-claro: #F5F5F5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gris-claro);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 800px;
+            padding: 25px;
+        }
+        h1 {
+            color: var(--verde-mediterraneo);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .integrantes {
+            background-color: var(--verde-claro);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #333;
+            border-left: 4px solid var(--azul-mediterraneo);
+        }
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(to bottom, var(--azul-mediterraneo), var(--verde-mediterraneo));
+            color: var(--blanco);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to bottom, var(--verde-mediterraneo), var(--azul-mediterraneo));
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 550;
+            color: var(--verde-mediterraneo);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        #cola-reproduccion {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--verde-claro);
+            border-radius: 8px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cola de Reproducción Musical (FIFO)</h1>
+        <div class="integrantes">
+            <strong>Análisis técnico:</strong>
+            <p>La cola garantiza que las canciones se reproduzcan en el orden en que fueron agregadas (<code>enqueue</code>), y la primera en la cola es la primera en reproducirse (<code>dequeue</code>). Se valida que no se agreguen canciones vacías.</p>
+        </div>
+        <div class="form-group">
+            <label for="cancion">Nombre de la canción:</label>
+            <input type="text" id="cancion" placeholder="Ej: Bohemian Rhapsody">
+        </div>
+        <div class="menu">
+            <button onclick="agregarCancion()">Agregar Canción</button>
+            <button onclick="reproducirSiguiente()">Reproducir Siguiente</button>
+            <button onclick="verProximaCancion()">Ver Próxima Canción</button>
+            <button onclick="limpiarColaReproduccion()">Limpiar Cola</button>
+        </div>
+        <div id="cola-reproduccion"><strong>Cola de Reproducción:</strong> Vacía.</div>
+    </div>
+    <script src="reproduccion.js"></script>
+</body>
+</html>
+________________
+
+
+3.1. Código JavaScript (Programa 2: Cola de Pedidos de un Restaurante)
+// Cola para los pedidos del restaurante
+let colaPedidos = [];
+
+
+// Función para agregar un pedido a la cola
+function agregarPedido() {
+  const pedido = document.getElementById('pedido').value;
+  if (pedido) {
+    colaPedidos.push(pedido);
+    document.getElementById('pedido').value = '';
+    actualizarColaPedidos();
+    alert(`Pedido "${pedido}" agregado a la cola.`);
+  } else {
+    alert('Ingrese un pedido válido.');
+  }
+}
+
+
+// Función para atender el siguiente pedido (eliminar de la cola)
+function atenderPedido() {
+  if (colaPedidos.length > 0) {
+    const pedido = colaPedidos.shift();
+    alert(`Atendiendo pedido: ${pedido}`);
+    actualizarColaPedidos();
+  } else {
+    alert('No hay pedidos en la cola.');
+  }
+}
+
+
+// Función para ver el próximo pedido (sin eliminar)
+function verProximoPedido() {
+  if (colaPedidos.length > 0) {
+    alert(`Próximo pedido: ${colaPedidos[0]}`);
+  } else {
+    alert('No hay pedidos en la cola.');
+  }
+}
+
+
+// Función para actualizar la visualización de la cola de pedidos
+function actualizarColaPedidos() {
+  const colaElement = document.getElementById('cola-pedidos');
+  colaElement.innerHTML = '<strong>Cola de Pedidos:</strong><br>' +
+    colaPedidos.map((pedido, index) => `${index + 1}. ${pedido}`).join('<br>');
+}
+
+
+// Función para limpiar la cola de pedidos
+function limpiarColaPedidos() {
+  colaPedidos = [];
+  actualizarColaPedidos();
+  alert('Cola de pedidos limpiada.');
+}
+3.2. Código HTML (Programa 2: Cola de Pedidos de un Restaurante)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cola de Pedidos de un Restaurante</title>
+    <style>
+        :root {
+            --verde-mediterraneo: #006666;
+            --azul-mediterraneo: #4682B4;
+            --verde-claro: #8FBC8F;
+            --blanco: #FFFFFF;
+            --gris-claro: #F5F5F5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gris-claro);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 800px;
+            padding: 25px;
+        }
+        h1 {
+            color: var(--verde-mediterraneo);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .integrantes {
+            background-color: var(--verde-claro);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #333;
+            border-left: 4px solid var(--azul-mediterraneo);
+        }
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(to bottom, var(--azul-mediterraneo), var(--verde-mediterraneo));
+            color: var(--blanco);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to bottom, var(--verde-mediterraneo), var(--azul-mediterraneo));
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 550;
+            color: var(--verde-mediterraneo);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        #cola-pedidos {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--verde-claro);
+            border-radius: 8px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cola de Pedidos de un Restaurante (FIFO)</h1>
+        <div class="integrantes">
+            <strong>Análisis técnico:</strong>
+            <p>La cola asegura que los pedidos se atiendan en el orden de llegada (<code>enqueue</code>), y el primero en la cola es el primero en ser atendido (<code>dequeue</code>). Ideal para gestionar horarios pico.</p>
+        </div>
+        <div class="form-group">
+            <label for="pedido">Descripción del pedido:</label>
+            <input type="text" id="pedido" placeholder="Ej: Hamburguesa con papas">
+        </div>
+        <div class="menu">
+            <button onclick="agregarPedido()">Agregar Pedido</button>
+            <button onclick="atenderPedido()">Atender Pedido</button>
+            <button onclick="verProximoPedido()">Ver Próximo Pedido</button>
+            <button onclick="limpiarColaPedidos()">Limpiar Cola</button>
+        </div>
+        <div id="cola-pedidos"><strong>Cola de Pedidos:</strong> Vacía.</div>
+    </div>
+    <script src="pedidos.js"></script>
+</body>
+</html>
+4. Conclusión: Lecciones Aprendidas
+La implementación de colas (FIFO) demostró su eficacia en escenarios donde el orden de procesamiento es crítico, como la reproducción musical o la atención de pedidos. Se aprendió a:
+      * Gestionar datos secuenciales usando estructuras simples pero poderosas, garantizando equidad en el procesamiento.
+      * Validar entradas para mantener la integridad de los datos y evitar errores en las operaciones.
+      * Diseñar interfaces claras que reflejen el estado de la cola en tiempo real, mejorando la transparencia y usabilidad.
+      * Aplicar principios de FIFO en contextos reales, como la atención de clientes o la reproducción de medios, optimizando flujos de trabajo. Este ejercicio reforzó la importancia de elegir la estructura de datos adecuada según las necesidades del problema, combinando lógica técnica con un diseño funcional y estéticamente coherente.
