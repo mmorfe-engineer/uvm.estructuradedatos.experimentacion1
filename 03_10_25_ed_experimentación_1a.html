@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario - Restaurante</title>
+    <style>
+        :root {
+            --verde-mediterraneo: #006666;
+            --azul-mediterraneo: #4682B4;
+            --verde-claro: #8FBC8F;
+            --blanco: #FFFFFF;
+            --gris-claro: #F5F5F5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gris-claro);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 800px;
+            padding: 25px;
+        }
+        h1 {
+            color: var(--verde-mediterraneo);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .integrantes {
+            background-color: var(--verde-claro);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #333;
+            border-left: 4px solid var(--azul-mediterraneo);
+        }
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(to bottom, var(--azul-mediterraneo), var(--verde-mediterraneo));
+            color: var(--blanco);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to bottom, var(--verde-mediterraneo), var(--azul-mediterraneo));
+        }
+        .form-container {
+            display: none;
+            background-color: var(--blanco);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 550;
+            color: var(--verde-mediterraneo);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--verde-claro);
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Inventario - Restaurante</h1>
+        <div class="integrantes">
+            <strong>Integrantes del Equipo y Colaboración:</strong><br><br>
+            <strong>Martín Alejandro Carballo:</strong>
+            <ul>
+                <li>Propuso usar <strong>objetos anidados</strong> para proveedores y productos.</li>
+                <li>Sugirió validar el RIF para evitar duplicados.</li>
+            </ul>
+            <strong>Martín Morfe Flores:</strong>
+            <ul>
+                <li>Planteó usar <strong>arreglos</strong> para compras.</li>
+                <li>Propuso un menú con botones destacados.</li>
+            </ul>
+            <strong>Mesa Técnica:</strong>
+            <p>Acordamos combinar objetos y arreglos para optimizar consultas.</p>
+        </div>
+        <div class="menu">
+            <button onclick="showForm('proveedor')">Registrar Proveedor</button>
+            <button onclick="showForm('producto')">Registrar Producto</button>
+            <button onclick="showForm('compra')">Registrar Compra</button>
+            <button onclick="consultarInventario()">Consultar Inventario</button>
+        </div>
+        <!-- Formularios -->
+        <div id="proveedor-form" class="form-container">
+            <div class="form-group"><label for="razon-social">Razón Social:</label><input type="text" id="razon-social"></div>
+            <div class="form-group"><label for="rif">RIF:</label><input type="text" id="rif"></div>
+            <div class="form-group"><label for="categorias">Categorías (separadas por coma):</label><input type="text" id="categorias"></div>
+            <div class="form-group"><label for="estatus">Estatus (activo/inactivo):</label><input type="text" id="estatus"></div>
+            <button onclick="registrarProveedor()">Guardar Proveedor</button>
+        </div>
+        <div id="producto-form" class="form-container">
+            <div class="form-group"><label for="nombre-producto">Nombre del Producto:</label><input type="text" id="nombre-producto"></div>
+            <div class="form-group"><label for="precio">Precio:</label><input type="number" id="precio" step="0.01"></div>
+            <div class="form-group"><label for="cantidad">Cantidad:</label><input type="number" id="cantidad"></div>
+            <div class="form-group"><label for="categoria-producto">Categoría:</label><input type="text" id="categoria-producto"></div>
+            <button onclick="registrarProducto()">Guardar Producto</button>
+        </div>
+        <div id="compra-form" class="form-container">
+            <div class="form-group"><label for="rif-proveedor">RIF del Proveedor:</label><input type="text" id="rif-proveedor"></div>
+            <div class="form-group"><label for="nombre-producto-compra">Nombre del Producto:</label><input type="text" id="nombre-producto-compra"></div>
+            <div class="form-group"><label for="cantidad-compra">Cantidad Comprada:</label><input type="number" id="cantidad-compra"></div>
+            <button onclick="registrarCompra()">Guardar Compra</button>
+        </div>
+        <div class="results" id="resultados"></div>
+    </div>
+    <script src="restaurante.js"></script>
+</body>
+</html>
